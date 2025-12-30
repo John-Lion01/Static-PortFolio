@@ -508,20 +508,19 @@
                     const form = document.getElementById("contact-form");
                     const btn = form.querySelector("button span")
 
-                    form.addEventListener("submit", async(e) => {
+                    form.addEventListener("submit", function(e) {
                         e.preventDefault();
                         
                         btn.disabled = true;
                         btn.textContent = "Envoi...";
                         var pop = document.createElement("li");
-                        const formData = new FormData(form);
+                        const formData = new FormData(this);
 
-                        try {
-                            const response = await fetch("/", {
-                                method: "post",
-                                body: formData
-                            });
-
+                        fetch("/", {
+                            method: "post",
+                            body: formData
+                        })
+                        .then(response => {
                             if (response.ok) {
                                 pop.classList.add("success");
                                 pop.textContent = "Message envoyé avec succès ";
@@ -530,13 +529,14 @@
                                 form.reset();
                             } else {
                                 throw new Error("Erreur Serveur");
+                                return response.json();
                             }
-                        } catch (error) {
+                        }).catch (error => {
                             pop.classList.add("error");
                             pop.textContent = "Une erreur est survenue. Veuillez réessayez.";
                             btn.disabled = false
                             btn.textContent = "Envoyer le message";
-                        }
+                        })
 
                         var popup = document.querySelector("div.popup ul");
                         popup.appendChild(pop);
